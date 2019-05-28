@@ -1,0 +1,31 @@
+# PowerCLI script for instant0clone lab 02
+# Version 1.0
+# This Script does the following
+# Powers off ICWin7
+# Delete all snapshots on ICWin7
+#
+# Specify vCenter Server, vCenter Server username and vCenter Server user password
+# Specify the VM name of the new VM
+# Specify the VM you want to clone
+$VM="ICWin7"
+#
+#
+$vCenter="sa-vcsa-01.vclass.local"
+$vCenterUser="administrator@vsphere.local"
+$vCenterUserPassword="VMware1!"
+
+#_______________________________________________________
+#_______________________________________________________
+## Connect to vCenter Server
+write-host Breaking System  -foreground green
+## write-host  Connecting to vCenter Server $vCenter -foreground green
+  Connect-viserver $vCenter -user $vCenterUser -password $vCenterUserPassword -WarningAction 0
+## Power off the VM that has snapshot if it is powered on
+  Get-VMGuest -VM $VM  | Where-Object {$_.State -eq "Running"}  | Shutdown-VMGuest -Confirm:$False
+## Remove snapshots from $VM 
+  Get-VM -Name $VM | Get-Snapshot | Remove-Snapshot -Confirm:$false
+## Inform student that the lab is broken and ask to continue
+Write-Host "System is Broken Press any key to continue ..." -foreground Yellow
+$x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
+Write-Host You are ready to start the lab! -foreground Green

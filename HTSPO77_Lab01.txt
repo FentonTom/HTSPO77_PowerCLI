@@ -1,0 +1,34 @@
+# PowerCLI script for instant-clone lab 01
+# Version 1.0
+# This Script does the following
+# Reboots ESXi-03
+#
+# Specify vCenter Server, vCenter Server username and vCenter Server user password
+#
+$ESXiHost="sa-esxi-03.vclass.local"
+#
+#
+$vCenter="sa-vcsa-01.vclass.local"
+$vCenterUser="administrator@vsphere.local"
+$vCenterUserPassword="VMware1!"
+
+#_______________________________________________________
+#_______________________________________________________
+## Connect to vCenter Server
+write-host "Breaking System. This may take a few minutes, you will be notifed when the system is broken."  -foreground green
+## write-host  Connecting to vCenter Server $vCenter -foreground green
+  Connect-viserver $vCenter -user $vCenterUser -password $vCenterUserPassword -WarningAction 0 > $Null
+## Reboot ESXi server that has instant clones VM
+$ServerName =  (Get-VMHost $ESXiHost).Name
+write-host $ServerName
+restart-VMhost $ServerName -Confirm:$false -Force
+start-Sleep -Seconds 60
+## Loop until system is powered back up 
+Get-VMHost -Name $ESXiHost | Select Name, PowerState 
+do { $hoststatus = (Get-VMHost $ESXiHost).PowerState ; Write-host -NoNewline "." ; Start-Sleep -Seconds 10} while ($hoststatus -ne "PoweredOn")
+## Inform student that the lab is broken and ask to continue
+Write-Host "."
+Write-Host "System is Broken Press any key to continue ..." -foreground Yellow
+$x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
+Write-Host You are ready to start the lab! -foreground Green
